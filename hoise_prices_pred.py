@@ -267,19 +267,24 @@ model = LassoCV(
 model = model.fit(X_train, y_train)
 
 y_pred_cv = model.predict(X_train)
-y_pred_test = model.predict(X_test)
+y_pred_lasso = model.predict(X_test)
 
 print('Best Alpha : ' + str(model.alpha_))
 
 print('Train MAE : ' + str(mean_absolute_error(y_train, y_pred_cv)))
 print('Train R^2 : ' + str(r2_score(y_train, y_pred_cv)))
 
-print('Test R^2 : ' + str(r2_score(y_test, y_pred_test)))
-print('Test MSE : ' + str(mean_squared_error(y_test, y_pred_test)))
-print('Test MAE : ' + str(mean_absolute_error(y_test, y_pred_test)))
+print('Test R^2 : ' + str(r2_score(y_test, y_pred_lasso)))
+print('Test MSE : ' + str(mean_squared_error(y_test, y_pred_lasso)))
+print('Test MAE : ' + str(mean_absolute_error(y_test, y_pred_lasso)))
 
 
 #staking models will give better performance 
-from vecstack import stacking
+
+#simple average
+y_pred = (y_pred_xgb + y_pred_lasso) / 2
+y_pred = np.exp(y_pred)
+pred_df = pd.DataFrame(y_pred, index=test["Id"], columns=["SalePrice"])
+pred_df.to_csv('ensemble1.csv', header=True, index_label='Id')
 
 
